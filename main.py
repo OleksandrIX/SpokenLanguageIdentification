@@ -37,7 +37,6 @@ def print_all_settings():
 
     lid_settings = LanguageIdentificationSettings()
     logger.info(f"Languages: {lid_settings.languages}")
-    logger.info(f"Languages file: {lid_settings.language_file_path}")
     logger.info(f"Train data dir: {lid_settings.get_train_data_path_abs}")
     logger.info(f"Test data dir: {lid_settings.get_test_data_path_abs}")
     logger.info(f"Stable model: {lid_settings.model_file_path}")
@@ -55,7 +54,6 @@ def init_module():
 
 def main():
     init_module()
-    print_all_settings()
 
 
 if __name__ == "__main__":
