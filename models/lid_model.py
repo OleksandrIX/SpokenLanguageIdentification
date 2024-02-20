@@ -76,7 +76,8 @@ class LidModelTrainAndTest:
         batches = len(train_loader)
 
         if is_checkpoint:
-            epoch, model, optimizer, loss = self.load_model_from_checkpoint(path_to_checkpoint)
+            epoch, model, optimizer, loss = self.load_model_from_checkpoint(path_to_checkpoint, amount_languages=len(
+                train_loader.dataset.classes))
         else:
             epoch = 0
             model = CNNModel(amount_languages=len(train_loader.dataset.classes)).to(self.device)
@@ -155,7 +156,7 @@ class LidModelTrainAndTest:
         torch.save(model.state_dict(), Path(model_dir, model_filename))
         logger.success(f"Saved final ({self.epochs} epochs) model to {model_dir}")
 
-    def load_model_from_checkpoint(self, path_to_checkpoint: str):
+    def load_model_from_checkpoint(self, path_to_checkpoint: str, amount_languages: int = 6):
         checkpoint = torch.load(path_to_checkpoint)
         model = CNNModel(amount_languages=amount_languages).to(self.device)
         model.load_state_dict(checkpoint["model_state_dict"])
