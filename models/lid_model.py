@@ -161,8 +161,9 @@ class LidModelTrainAndTest:
         checkpoint = torch.load(path_to_checkpoint)
         model = CNNModel(amount_languages=amount_languages).to(self.device)
         model.load_state_dict(checkpoint["model_state_dict"])
+        optimizer = torch.optim.Adam(model.parameters())
+        optimizer.load_state_dict(checkpoint["optimizer_state_dict"])
         epoch = checkpoint["epoch"]
-        optimizer = checkpoint["optimizer_state_dict"]
         loss = checkpoint["loss"]
         return (epoch, model, optimizer, loss)
 
