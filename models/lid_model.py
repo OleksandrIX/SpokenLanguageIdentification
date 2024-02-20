@@ -89,7 +89,7 @@ class LidModelTrainAndTest:
 
         if not model_dir.exists():
             os.mkdir(model_dir)
-            shutil.copy(Path(lid_settings.lid_settings_path, "config.yml"),
+            shutil.copy(Path(self.lid_settings.lid_settings_path, "config.yml"),
                         Path.joinpath(model_dir, "config.yml"))
 
         logger.add(Path(model_dir, "train-lid-model.log"), level="TRACE")
