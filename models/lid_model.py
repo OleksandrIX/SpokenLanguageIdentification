@@ -12,7 +12,7 @@ from utils.data_loader import load_dataset, image_loader
 
 
 class CNNModel(nn.Module):
-    def __init__(self):
+    def __init__(self, amount_languages: int = 6):
         super(CNNModel, self).__init__()
         self.layer1 = nn.Sequential(
             nn.Conv2d(3, 32, kernel_size=5, stride=1, padding=2),
@@ -35,7 +35,7 @@ class CNNModel(nn.Module):
         self.relu = nn.ReLU()
         self.softmax = nn.Softmax()
         self.fc1 = nn.Linear(60 * 60 * 128, 1000)
-        self.fc2 = nn.Linear(1000, 3)
+        self.fc2 = nn.Linear(1000, amount_languages)
 
     def forward(self, x):
         x = self.layer1(x)
@@ -62,14 +62,12 @@ class LidModelTrainAndTest:
         self.test_data_dir = lid_settings.get_test_data_path_abs
         self.models_dir_path = lid_settings.models_dir_path
 
-    def train_model(self) -> None:
+    def train_model(self,
+                    is_checkpoint: bool = False,
+                    path_to_checkpoint: str = "") -> None:
         """
         Trains the model on the training data and saves checkpoints and final version model in models_dir
         """
-        model = CNNModel().to(self.device)
-        loss = nn.CrossEntropyLoss()
-        optimizer = torch.optim.Adam(model.parameters())
-
         train_loader = load_dataset(self.train_data_dir, self.batch_size)
 
         loss_history = []
@@ -77,11 +75,22 @@ class LidModelTrainAndTest:
         performance = [0]
         batches = len(train_loader)
 
+        if is_checkpoint:
+            epoch, model, optimizer, loss = self.load_model_from_checkpoint(path_to_checkpoint)
+        else:
+            epoch = 0
+            model = CNNModel(amount_languages=len(train_loader.dataset.classes)).to(self.device)
+            loss = nn.CrossEntropyLoss()
+            optimizer = torch.optim.Adam(model.parameters())
+
         time_string = time.strftime("%Y_%m_%d-%H_%M_%S", time.localtime())
         model_dir = Path().joinpath(self.models_dir_path, time_string)
-        os.mkdir(model_dir)
-        shutil.copy(Path(lid_settings.lid_settings_path, "config.yml"),
-                    Path.joinpath(model_dir, "config.yml"))
+
+        if not model_dir.exists():
+            os.mkdir(model_dir)
+            shutil.copy(Path(lid_settings.lid_settings_path, "config.yml"),
+                        Path.joinpath(model_dir, "config.yml"))
+
         logger.add(Path(model_dir, "train-lid-model.log"), level="TRACE")
         logger.info(f"Created model directory: {model_dir}")
         logger.info(f"Copied config file to {model_dir}")
@@ -90,7 +99,7 @@ class LidModelTrainAndTest:
         logger.info(f"Classes: {train_loader.dataset.classes}")
         logger.info(f"Total files for train: {len(train_loader.dataset.imgs)}")
 
-        for epoch in range(0, self.epochs):
+        for epoch in range(epoch - 1, self.epochs):
             correct_train, total_train, error_train = 0, 0, 0
             for step, (images, labels) in enumerate(train_loader):
                 images = images.to(self.device)
@@ -146,24 +155,33 @@ class LidModelTrainAndTest:
         torch.save(model.state_dict(), Path(model_dir, model_filename))
         logger.success(f"Saved final ({self.epochs} epochs) model to {model_dir}")
 
-    def test_accuracy_from_model(self, path_to_model: str) -> None:
+    def load_model_from_checkpoint(self, path_to_checkpoint: str):
+        checkpoint = torch.load(path_to_checkpoint)
+        model = CNNModel(amount_languages=amount_languages).to(self.device)
+        model.load_state_dict(checkpoint["model_state_dict"])
+        epoch = checkpoint["epoch"]
+        optimizer = checkpoint["optimizer_state_dict"]
+        loss = checkpoint["loss"]
+        return (epoch, model, optimizer, loss)
+
+    def test_accuracy_from_model(self, path_to_model: str, amount_languages) -> None:
         """
         Test the accuracy of the model on the test data
         :param path_to_model: path to the model
         """
-        model = CNNModel().to(self.device)
+        model = CNNModel(amount_languages=amount_languages).to(self.device)
         model.load_state_dict(torch.load(path_to_model))
         loss = nn.CrossEntropyLoss()
         logger.success(f"Model '{os.path.basename(path_to_model)}' is loaded")
         self.check_accuracy(model, loss)
 
-    def test_accuracy_from_checkpoint(self, path_to_model: str) -> None:
+    def test_accuracy_from_checkpoint(self, path_to_model: str, amount_languages) -> None:
         """
         Test the accuracy of the model checkpoint on the test data
         :param path_to_model: path to the model
         """
         checkpoint = torch.load(path_to_model)
-        model = CNNModel().to(self.device)
+        model = CNNModel(amount_languages=amount_languages).to(self.device)
         model.load_state_dict(checkpoint['model_state_dict'])
         loss = checkpoint['loss']
         logger.success(f"Model '{os.path.basename(path_to_model)}' is loaded")
@@ -209,7 +227,7 @@ class LidModel:
         self.languages = self.lid_settings.languages
         self.language_tags = self.lid_settings.language_tags
 
-        self.model = CNNModel().to(device)
+        self.model = CNNModel(len(self.languages)).to(device)
         self.model.load_state_dict(torch.load(self.model_file_path))
         logger.success(f"Model '{os.path.basename(self.model_file_path)}' is loaded")
 

@@ -2,10 +2,10 @@ lid_model:
   models_dir: "lid-models"
 
   lid_model_train_settings:
-    epochs: 3
+    epochs: 12
     batch_size: 64
 
 lid_dataset:
-  path: "/path/to/dataset"
+  path: "/home/azureuser/datasets/spectrograms"
   train_dir: "train"
   test_dir: "test"

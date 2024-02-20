@@ -31,9 +31,6 @@ __pycache__
 # Data store
 data_store/**
 
-# Settings
-/settings/settings.json
-
 # LID
 /language_identification/**/*.png
 /settings/language_identification/lid-models/**/*

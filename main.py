@@ -4,11 +4,11 @@ from pathlib import Path
 from config.logger import init_logger
 
 
-def train_lid_model():
+def train_lid_model(start_epoch=0):
     from models.lid_model import LidModelTrainAndTest
 
     lid_model = LidModelTrainAndTest()
-    lid_model.train_model()
+    lid_model.train_model(start_epoch)
 
 
 def test_language_identification():
@@ -54,6 +54,7 @@ def init_module():
 
 def main():
     init_module()
+    # train_lid_model(start_epoch=5)
 
 
 if __name__ == "__main__":
