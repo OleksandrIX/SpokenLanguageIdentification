@@ -13,8 +13,14 @@ def load_dataset(path_to_dataset: str,
     :param shuffle: shuffle dataset
     :return: returns torch.utils.data.DataLoader
     """
-    dataset = torchvision.datasets.ImageFolder(root=path_to_dataset,
-                                               transform=torchvision.transforms.ToTensor())
+    transform = transforms.Compose([
+        transforms.ToTensor(),
+        transforms.Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5]),
+        transforms.Resize((482, 484))
+    ])
+    dataset = datasets.ImageFolder(root=path_to_dataset,
+                                   transform=transform)
+
     return torch.utils.data.DataLoader(dataset,
                                        batch_size=batch_size,
                                        num_workers=0,
