@@ -56,6 +56,7 @@ class LidModelTrainAndTest:
         lid_settings = LanguageIdentificationSettings()
         self.data_loader = None
         self.device = device
+        self.lid_settings = lid_settings
         self.epochs = lid_settings.lid_model["lid_model_train_settings"]["epochs"]
         self.batch_size = lid_settings.lid_model["lid_model_train_settings"]["batch_size"]
         self.train_data_dir = lid_settings.get_train_data_path_abs
