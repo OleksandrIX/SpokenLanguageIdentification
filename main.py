@@ -4,11 +4,11 @@ from pathlib import Path
 from config.logger import init_logger
 
 
-def train_lid_model(start_epoch=0):
+def train_lid_model():
     from models.lid_model import LidModelTrainAndTest
 
     lid_model = LidModelTrainAndTest()
-    lid_model.train_model(start_epoch)
+    lid_model.train_model(is_checkpoint=True, path_to_checkpoint="/home/azureuser/CNNModel-5-48.43.pth")
 
 
 def test_language_identification():
@@ -54,7 +54,7 @@ def init_module():
 
 def main():
     init_module()
-    # train_lid_model(start_epoch=5)
+    # train_lid_model()
 
 
 if __name__ == "__main__":
