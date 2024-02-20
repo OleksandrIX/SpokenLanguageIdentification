@@ -7,6 +7,7 @@ from loguru import logger
 ROOT_PATH = Path(__file__).parent.parent.absolute()
 SETTINGS_PATH = Path(ROOT_PATH, "settings")
 LID_SETTINGS_PATH = Path(SETTINGS_PATH, "language_identification")
+DATA_STORE = "/mnt/data_store"
 
 
 class LanguageIdentificationSettings:
@@ -15,7 +16,7 @@ class LanguageIdentificationSettings:
             settings: dict = yaml.safe_load(settings)
             self.lid_settings_path = LID_SETTINGS_PATH
             self.data_store_path = Path(ROOT_PATH, "data_store")
-            self.models_dir_path = Path(LID_SETTINGS_PATH, "lid-models")
+            self.models_dir_path = Path(DATA_STORE, "lid-models")
 
             self.lid_dataset = settings["lid_dataset"]
             self.lid_model: list = settings["lid_model"]
