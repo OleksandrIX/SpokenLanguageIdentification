@@ -1,5 +1,5 @@
 import torch
-import torchvision
+from torchvision import transforms, datasets
 from PIL import Image
 
 
@@ -20,7 +20,6 @@ def load_dataset(path_to_dataset: str,
     ])
     dataset = datasets.ImageFolder(root=path_to_dataset,
                                    transform=transform)
-
     return torch.utils.data.DataLoader(dataset,
                                        batch_size=batch_size,
                                        num_workers=0,
@@ -35,5 +34,5 @@ def image_loader(image_path: str) -> torch.Tensor:
     """
     image = Image.open(image_path)
     image = image.convert("RGB")
-    image = torchvision.transforms.ToTensor()(image).float()
+    image = transforms.ToTensor()(image).float()
     return image.unsqueeze(0)
